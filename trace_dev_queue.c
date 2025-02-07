@@ -5,22 +5,21 @@
 #include <linux/if_ether.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
-#include <linux/in.h> // Kernel definitions for IPPROTO_* and in_addr
-#include <bpf/bpf_tracing.h> // For PT_REGS_PARM1 and PT_REGS_PARM2
+#include <linux/in.h> 
+#include <bpf/bpf_tracing.h> 
 
-// Define maps for egress and ingress traffic
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, 1024);
-    __type(key, uint32_t); // PID
-    __type(value, uint64_t); // Timestamp
+    __type(key, uint32_t);
+    __type(value, uint64_t);
 } egress_traffic_map SEC(".maps");
 
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, 1024);
     __type(key, struct ip_key); // IP 5-tuple
-    __type(value, uint32_t); // PID
+    __type(value, uint32_t); // pid
 } ingress_traffic_map SEC(".maps");
 
 struct ip_key {
@@ -31,7 +30,6 @@ struct ip_key {
     uint8_t protocol;
 };
 
-// Manual implementation of htons for eBPF
 static inline uint16_t bpf_htons(uint16_t hostshort) {
     return ((hostshort & 0xFF00) >> 8) | ((hostshort & 0x00FF) << 8);
 }
